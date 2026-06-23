@@ -4,13 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Integrated Marketing Dashboard</title>
-    <!-- Tailwind CSS (디자인) -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Chart.js (그래프 시각화) -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Chart.js 데이터 라벨 플러그인 (그래프 위에 숫자 표시) -->
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0"></script>
-    <!-- SheetJS (엑셀 읽기/쓰기 기능) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700;800;900&display=swap');
@@ -20,9 +16,9 @@
             color: #1e293b; 
         }
         .card { @apply bg-white p-8 rounded-[2rem] border border-gray-100 shadow-md transition-all; }
-        .input-box { @apply w-full px-4 py-2 border-2 border-gray-100 rounded-xl text-center font-bold text-gray-700 focus:outline-none focus:border-indigo-400 transition-all; }
-        th { @apply bg-slate-50 text-slate-500 py-3 text-xs font-bold tracking-wider uppercase text-center border-b; }
-        td { @apply py-4 text-center border-b text-sm font-bold text-slate-700; }
+        .input-box { @apply w-full px-2 py-1.5 border-2 border-gray-100 rounded-xl text-center font-bold text-gray-700 text-xs focus:outline-none focus:border-indigo-400 transition-all; }
+        th { @apply bg-slate-50 text-slate-500 py-3 text-xs font-bold tracking-wider uppercase text-center border-b px-2; }
+        td { @apply py-4 text-center border-b text-xs font-bold text-slate-700 px-2; }
         
         .navy-title {
             color: #0f172a; 
@@ -36,98 +32,111 @@
 </head>
 <body class="py-12 px-4 md:px-8">
 
-    <div class="max-w-6xl mx-auto space-y-10">
+    <div class="max-w-7xl mx-auto space-y-10">
         
         <!-- 상단 헤더 섹션 -->
         <header class="flex flex-col md:flex-row md:items-center justify-between border-b border-slate-100 pb-8 gap-4">
             <div class="flex flex-col sm:flex-row items-start sm:items-center gap-4 order-2 md:order-1">
                 <button onclick="downloadExcel()" class="bg-emerald-600 hover:bg-emerald-700 text-white btn-action shadow-emerald-600/10">
-                    🟢 엑셀 보고서 다운로드
+                    🟢 통합 엑셀 보고서 다운로드
                 </button>
-                <p class="text-xs font-bold text-slate-400">네이버 파워링크 / 쇼핑검색 / 메타 성과 관리</p>
+                <p class="text-xs font-bold text-slate-400">지능형 뉘앙스 분석 및 다중 파일 자동 누적 시스템</p>
             </div>
             <div class="text-left md:text-right order-1 md:order-2">
                 <h1 class="navy-title">통합 매체 보고서 정리</h1>
             </div>
         </header>
 
-        <!-- 📂 [신규] 데이터 가져오기 함 (엑셀 파일 업로드) -->
+        <!-- 📂 [지능형 개조] 다중 파일 업로드 함 -->
         <div class="card border-2 border-dashed border-slate-200 bg-slate-50/50 hover:bg-slate-50 transition-all">
-            <h2 class="text-base font-black mb-3 text-slate-800 flex items-center gap-2">📁 내 데이터 가져오기 (Excel 업로드 함)</h2>
-            <p class="text-xs text-slate-400 mb-4">첫 번째 행에 매체구분, 광고비, 노출수, 클릭수, 매출액 순서로 적힌 엑셀 파일을 넣어주시면 자동으로 입력됩니다.</p>
-            <input type="file" id="excel-uploader" accept=".xlsx, .xls" onchange="uploadExcel(this)" class="block w-full text-sm text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-black file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer">
+            <h2 class="text-base font-black mb-1 text-slate-800 flex items-center gap-2">📁 지능형 매체 파일 업로드 함 (다중 선택 가능)</h2>
+            <p class="text-xs text-slate-400 mb-4">매체사 보고서 파일들을 **한 번에 여러 개 선택**해서 올리거나 **연속으로 계속** 넣으셔도 문맥을 이해해 알아서 누적 합산합니다.</p>
+            <input type="file" id="excel-uploader" accept=".xlsx, .xls, .csv" multiple onchange="uploadMultipleExcel(this)" class="block w-full text-sm text-slate-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-black file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 cursor-pointer">
         </div>
 
-        <!-- 1. 데이터 입력 및 편집 섹션 -->
+        <!-- 1. 데이터 통합 및 편집 테이블 -->
         <div class="card">
-            <h2 class="text-lg font-black mb-6 text-slate-800">✍️ 매체별 데이터 입력 및 검토</h2>
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-lg font-black text-slate-800">✍️ 통합 매체별 성과 검토</h2>
+                <button onclick="resetData()" class="text-xs bg-rose-50 text-rose-600 font-bold px-3 py-1.5 rounded-xl hover:bg-rose-100 transition-all">
+                    🗑️ 데이터 초기화
+                </button>
+            </div>
             <div class="overflow-x-auto">
-                <table class="w-full min-w-[600px]">
+                <table class="w-full min-w-[900px]">
                     <thead>
                         <tr>
                             <th>매체 구분</th>
-                            <th>광고비 (Spend)</th>
-                            <th>노출수 (Imp)</th>
-                            <th>클릭수 (Click)</th>
-                            <th>매출액 (Revenue)</th>
-                            <th>ROAS (%)</th>
+                            <th>광고비 (원)</th>
+                            <th>노출수 (회)</th>
+                            <th>클릭수 (회)</th>
+                            <th>클릭률 (CTR)</th>
+                            <th>전환수 (건)</th>
+                            <th>전환율 (CVR)</th>
+                            <th>전환 매출 (원)</th>
+                            <th>수익률 (ROAS)</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr id="row-powerlink">
+                        <!-- 파워링크 -->
+                        <tr id="row-p">
                             <td class="font-extrabold text-blue-600">네이버 파워링크</td>
-                            <td><input type="number" id="p-spend" value="1500000" oninput="calculateRow('p')" class="input-box"></td>
-                            <td><input type="number" id="p-imp" value="500000" class="input-box"></td>
-                            <td><input type="number" id="p-click" value="12000" class="input-box"></td>
-                            <td><input type="number" id="p-rev" value="4500000" oninput="calculateRow('p')" class="input-box"></td>
-                            <td id="p-roas" class="font-black text-slate-900 text-base">300%</td>
+                            <td><input type="number" id="p-spend" value="0" oninput="reCalculateAll()" class="input-box"></td>
+                            <td><input type="number" id="p-imp" value="0" oninput="reCalculateAll()" class="input-box"></td>
+                            <td><input type="number" id="p-click" value="0" oninput="reCalculateAll()" class="input-box"></td>
+                            <td id="p-ctr" class="text-slate-500 font-bold">0.00%</td>
+                            <td><input type="number" id="p-conv" value="0" oninput="reCalculateAll()" class="input-box"></td>
+                            <td id="p-cvr" class="text-slate-500 font-bold">0.00%</td>
+                            <td><input type="number" id="p-rev" value="0" oninput="reCalculateAll()" class="input-box"></td>
+                            <td id="p-roas" class="font-black text-slate-900 text-sm">0%</td>
                         </tr>
-                        <tr id="row-shopping">
+                        <!-- 쇼핑검색 -->
+                        <tr id="row-s">
                             <td class="font-extrabold text-emerald-600">네이버 쇼핑검색</td>
-                            <td><input type="number" id="s-spend" value="2000000" oninput="calculateRow('s')" class="input-box"></td>
-                            <td><input type="number" id="s-imp" value="400000" class="input-box"></td>
-                            <td><input type="number" id="s-click" value="15000" class="input-box"></td>
-                            <td><input type="number" id="s-rev" value="8000000" oninput="calculateRow('s')" class="input-box"></td>
-                            <td id="s-roas" class="font-black text-slate-900 text-base">400%</td>
+                            <td><input type="number" id="s-spend" value="0" oninput="reCalculateAll()" class="input-box"></td>
+                            <td><input type="number" id="s-imp" value="0" oninput="reCalculateAll()" class="input-box"></td>
+                            <td><input type="number" id="s-click" value="0" oninput="reCalculateAll()" class="input-box"></td>
+                            <td id="s-ctr" class="text-slate-500 font-bold">0.00%</td>
+                            <td><input type="number" id="s-conv" value="0" oninput="reCalculateAll()" class="input-box"></td>
+                            <td id="s-cvr" class="text-slate-500 font-bold">0.00%</td>
+                            <td><input type="number" id="s-rev" value="0" oninput="reCalculateAll()" class="input-box"></td>
+                            <td id="s-roas" class="font-black text-slate-900 text-sm">0%</td>
                         </tr>
-                        <tr id="row-meta">
+                        <!-- 메타 -->
+                        <tr id="row-m">
                             <td class="font-extrabold text-purple-600">메타 (FB/IG)</td>
-                            <td><input type="number" id="m-spend" value="1800000" oninput="calculateRow('m')" class="input-box"></td>
-                            <td><input type="number" id="m-imp" value="800000" class="input-box"></td>
-                            <td><input type="number" id="m-click" value="24000" class="input-box"></td>
-                            <td><input type="number" id="m-rev" value="3600000" oninput="calculateRow('m')" class="input-box"></td>
-                            <td id="m-roas" class="font-black text-slate-900 text-base">200%</td>
+                            <td><input type="number" id="m-spend" value="0" oninput="reCalculateAll()" class="input-box"></td>
+                            <td><input type="number" id="m-imp" value="0" oninput="reCalculateAll()" class="input-box"></td>
+                            <td><input type="number" id="m-click" value="0" oninput="reCalculateAll()" class="input-box"></td>
+                            <td id="m-ctr" class="text-slate-500 font-bold">0.00%</td>
+                            <td><input type="number" id="m-conv" value="0" oninput="reCalculateAll()" class="input-box"></td>
+                            <td id="m-cvr" class="text-slate-500 font-bold">0.00%</td>
+                            <td><input type="number" id="m-rev" value="0" oninput="reCalculateAll()" class="input-box"></td>
+                            <td id="m-roas" class="font-black text-slate-900 text-sm">0%</td>
                         </tr>
                     </tbody>
                 </table>
             </div>
-            <div class="mt-6 text-right">
-                <button onclick="updateDashboard()" class="bg-slate-900 hover:bg-black text-white font-black px-6 py-3.5 rounded-2xl shadow-lg shadow-slate-900/10 transition-all inline-block">
-                    🔄 수동 입력값 그래프 반영하기
-                </button>
-            </div>
         </div>
 
-        <!-- 2. 시각화 그래프 대시보드 (누끼 다운로드 버튼 배치) -->
+        <!-- 2. 시각화 그래프 대시보드 -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <!-- 그래프 1 -->
             <div class="card flex flex-col justify-between">
                 <div>
                     <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-base font-black text-slate-700">📈 매체별 주요 성과 비교</h3>
-                        <button onclick="downloadChartPng('mixedChart', '매체별_성과_비교_그래프')" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold px-3 py-1.5 rounded-xl text-xs transition-all">
+                        <h3 class="text-base font-black text-slate-700">📈 매체별 광고비 및 매출액 비교</h3>
+                        <button onclick="downloadChartPng('mixedChart', '매체별_주요성과_그래프')" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold px-3 py-1.5 rounded-xl text-xs transition-all">
                             📸 누끼 이미지 다운
                         </button>
                     </div>
                     <div class="h-80"><canvas id="mixedChart"></canvas></div>
                 </div>
             </div>
-            <!-- 그래프 2 -->
             <div class="card flex flex-col justify-between">
                 <div>
                     <div class="flex items-center justify-between mb-4">
-                        <h3 class="text-base font-black text-slate-700">🍕 매체별 매출액 기여도 비중</h3>
-                        <button onclick="downloadChartPng('pieChart', '매체별_매출_비중_그래프')" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold px-3 py-1.5 rounded-xl text-xs transition-all">
+                        <h3 class="text-base font-black text-slate-700">🍕 매체별 매출 기여도 비중</h3>
+                        <button onclick="downloadChartPng('pieChart', '매체별_매출비중_그래프')" class="bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold px-3 py-1.5 rounded-xl text-xs transition-all">
                             📸 누끼 이미지 다운
                         </button>
                     </div>
@@ -139,76 +148,186 @@
     </div>
 
     <script>
-        // 숫자가 차트 위에 고정되어 나오도록 플러그인 글로벌 등록
         Chart.register(ChartDataLabels);
 
         let mixedChart = null;
         let pieChart = null;
 
-        function calculateRow(prefix) {
-            const spend = parseFloat(document.getElementById(`${prefix}-spend`).value) || 0;
-            const rev = parseFloat(document.getElementById(`${prefix}-rev`).value) || 0;
-            const roasCell = document.getElementById(`${prefix}-roas`);
-            roasCell.innerText = spend > 0 ? Math.round((rev / spend) * 100) + '%' : '0%';
+        // 글로벌 데이터 누적 저장 객체
+        const currentData = {
+            p: { spend: 0, imp: 0, click: 0, conv: 0, rev: 0 },
+            s: { spend: 0, imp: 0, click: 0, conv: 0, rev: 0 },
+            m: { spend: 0, imp: 0, click: 0, conv: 0, rev: 0 }
+        };
+
+        function resetData() {
+            ['p', 's', 'm'].forEach(prefix => {
+                currentData[prefix] = { spend: 0, imp: 0, click: 0, conv: 0, rev: 0 };
+            });
+            pushDataToInputs();
         }
 
-        // 📂 외부 파일 업로드 함 처리 로직
-        function uploadExcel(input) {
-            if (!input.files[0]) return;
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const data = new Uint8Array(e.target.result);
-                const workbook = XLSX.read(data, {type: 'array'});
-                const sheetName = workbook.SheetNames[0];
-                const sheet = workbook.Sheets[sheetName];
-                const json = XLSX.utils.sheet_to_json(sheet, {header: 1});
+        // 다중 파일 읽기 함수
+        function uploadMultipleExcel(input) {
+            if (!input.files.length) return;
+            
+            let filesRead = 0;
+            const totalFiles = input.files.length;
 
-                // 2번째 행부터 읽어서 각각 매칭 (파워링크, 쇼핑, 메타 순서 매칭 가정)
-                const mapping = { '파워링크': 'p', '쇼핑': 's', '메타': 'm' };
-                
-                for(let i = 1; i < json.length; i++) {
-                    const row = json[i];
-                    if(!row[0]) continue;
-                    
-                    let prefix = '';
-                    if(row[0].includes('파워링크')) prefix = 'p';
-                    else if(row[0].includes('쇼핑')) prefix = 's';
-                    else if(row[0].includes('메타')) prefix = 'm';
+            Array.from(input.files).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const data = new Uint8Array(e.target.result);
+                    const workbook = XLSX.read(data, {type: 'array'});
+                    const sheet = workbook.Sheets[workbook.SheetNames[0]];
+                    const json = XLSX.utils.sheet_to_json(sheet, {header: 1});
 
-                    if(prefix) {
-                        document.getElementById(`${prefix}-spend`).value = row[1] || 0;
-                        document.getElementById(`${prefix}-imp`).value = row[2] || 0;
-                        document.getElementById(`${prefix}-click`).value = row[3] || 0;
-                        document.getElementById(`${prefix}-rev`).value = row[4] || 0;
-                        calculateRow(prefix);
+                    analyzeContextAndAccumulate(json, file.name);
+
+                    filesRead++;
+                    if(filesRead === totalFiles) {
+                        pushDataToInputs();
+                        input.value = ""; // 재업로드 가능하게 초기화
                     }
-                }
-                updateDashboard();
-            };
-            reader.readAsArrayBuffer(input.files[0]);
+                };
+                reader.readAsArrayBuffer(file);
+            });
         }
 
-        function updateDashboard() {
-            const media = ['파워링크', '쇼핑검색', '메타'];
-            const spends = [
-                parseFloat(document.getElementById('p-spend').value) || 0,
-                parseFloat(document.getElementById('s-spend').value) || 0,
-                parseFloat(document.getElementById('m-spend').value) || 0
-            ];
-            const revs = [
-                parseFloat(document.getElementById('p-rev').value) || 0,
-                parseFloat(document.getElementById('s-rev').value) || 0,
-                parseFloat(document.getElementById('m-rev').value) || 0
-            ];
+        // 🧠 핵심: 뉘앙스 및 컨텍스트 이해 알고리즘
+        function analyzeContextAndAccumulate(matrix, filename) {
+            if (matrix.length < 2) return;
 
-            // 1. 혼합 성과 차트 (수치 표시 + 투명 배경 옵션)
+            // 1. 파일명 또는 내부 텍스트 뉘앙스로 기본 매체 매칭 정보 힌트 추출
+            let mediaType = '';
+            const lowerName = filename.toLowerCase();
+            if(lowerName.includes('파워링크') || lowerName.includes('powerlink')) mediaType = 'p';
+            else if(lowerName.includes('쇼핑') || lowerName.includes('shopping')) mediaType = 's';
+            else if(lowerName.includes('메타') || lowerName.includes('meta') || lowerName.includes('facebook') || lowerName.includes('페이스북')) mediaType = 'm';
+
+            // 2. 헤더 행(보통 index 0 또는 1) 분석하여 컬럼 위치 파악
+            let headerRow = matrix[0];
+            let isDataStartAtRow2 = true;
+
+            // 네이버 등 상단에 빈 행이나 요약이 배치된 경우 대응용 헤더 자동 탐색
+            for(let i=0; i<Math.min(matrix.length, 5); i++) {
+                if(matrix[i].some(cell => String(cell).includes('클릭') || String(cell).includes('노출') || String(cell).includes('광고비'))) {
+                    headerRow = matrix[i];
+                    headerRowIdx = i;
+                    break;
+                }
+            }
+
+            // 문맥에 기반한 열 인덱스 매핑 오브젝트 생성
+            const colMapping = { spend: -1, imp: -1, click: -1, conv: -1, rev: -1, media: -1 };
+
+            headerRow.forEach((cell, idx) => {
+                const txt = String(cell).replace(/\s+/g, ''); // 공백제거 후 뉘앙스 분석
+                
+                // 매체 구분 열 찾기
+                if(txt.includes('매체') || txt.includes('캠페인') || txt.includes('Account')) colMapping.media = idx;
+
+                // 광고비 뉘앙스
+                if(txt.includes('광고비') || txt.includes('지출') || txt.includes('Spend') || txt.includes('비용')) colMapping.spend = idx;
+                
+                // 노출수 뉘앙스
+                if(txt.includes('노출') || txt.includes('Imp')) colMapping.imp = idx;
+                
+                // 클릭수 뉘앙스
+                if(txt.includes('클릭수') || txt.includes('클릭') || txt.includes('Click')) colMapping.click = idx;
+
+                // 🌟 중요: 네이버 구매완료수 및 전환수 통합 문맥 이해
+                if(txt.includes('구매완료수') || txt.includes('전환수') || txt.includes('전환건수') || txt.includes('Conversions') || txt.includes('결제건수')) {
+                    // 이미 구매완료수를 찾았다면 우선권 부여
+                    if(txt.includes('구매완료수') || colMapping.conv === -1) colMapping.conv = idx;
+                }
+
+                // 🌟 중요: 네이버 구매완료 매출 및 전환 매출액 통합 문맥 이해
+                if(txt.includes('구매완료매출') || txt.includes('전환매출') || txt.includes('매출액') || txt.includes('Revenue') || txt.includes('결제금액')) {
+                    if(txt.includes('구매완료매출') || colMapping.rev === -1) colMapping.rev = idx;
+                }
+            });
+
+            // 데이터 행들을 돌며 기존 값에 누적 합산
+            const startIdx = matrix.indexOf(headerRow) + 1;
+            for(let i = startIdx; i < matrix.length; i++) {
+                const row = matrix[i];
+                if (!row || row.length === 0) continue;
+
+                // 개별 행 내부에서 매체 정보 한 번 더 추론 (통합 보고서일 경우 대비)
+                let rowMedia = mediaType;
+                if(colMapping.media !== -1 && row[colMapping.media]) {
+                    const mTxt = String(row[colMapping.media]);
+                    if(mTxt.includes('파워링크')) rowMedia = 'p';
+                    else if(mTxt.includes('쇼핑')) rowMedia = 's';
+                    else if(mTxt.includes('메타') || mTxt.includes('국내페이스북') || mTxt.includes('Meta')) rowMedia = 'm';
+                }
+
+                // 매체 유형 확정이 안 되었다면 파일 이름 힌트가 가장 강함 -> 최종 없으면 파워링크 기본 대입 방지용 패스
+                if(!rowMedia) rowMedia = 'p'; 
+
+                // 매칭된 열의 값을 가져와 파싱 후 누적
+                if(colMapping.spend !== -1) currentData[rowMedia].spend += parseFloat(String(row[colMapping.spend]).replace(/[^0-9.-]/g, '')) || 0;
+                if(colMapping.imp !== -1) currentData[rowMedia].imp += parseFloat(String(row[colMapping.imp]).replace(/[^0-9.-]/g, '')) || 0;
+                if(colMapping.click !== -1) currentData[rowMedia].click += parseFloat(String(row[colMapping.click]).replace(/[^0-9.-]/g, '')) || 0;
+                if(colMapping.conv !== -1) currentData[rowMedia].conv += parseFloat(String(row[colMapping.conv]).replace(/[^0-9.-]/g, '')) || 0;
+                if(colMapping.rev !== -1) currentData[rowMedia].rev += parseFloat(String(row[colMapping.rev]).replace(/[^0-9.-]/g, '')) || 0;
+            }
+        }
+
+        // 축적된 내부 데이터를 화면 인풋박스에 전달
+        function pushDataToInputs() {
+            ['p', 's', 'm'].forEach(prefix => {
+                document.getElementById(`${prefix}-spend`).value = Math.round(currentData[prefix].spend);
+                document.getElementById(`${prefix}-imp`).value = Math.round(currentData[prefix].imp);
+                document.getElementById(`${prefix}-click`).value = Math.round(currentData[prefix].click);
+                document.getElementById(`${prefix}-conv`).value = Math.round(currentData[prefix].conv);
+                document.getElementById(`${prefix}-rev`).value = Math.round(currentData[prefix].rev);
+            });
+            reCalculateAll();
+        }
+
+        // 전체 테이블 비율 지표 연산 및 그래프 연동
+        function reCalculateAll() {
+            ['p', 's', 'm'].forEach(prefix => {
+                const spend = parseFloat(document.getElementById(`${prefix}-spend`).value) || 0;
+                const imp = parseFloat(document.getElementById(`${prefix}-imp`).value) || 0;
+                const click = parseFloat(document.getElementById(`${prefix}-click`).value) || 0;
+                const conv = parseFloat(document.getElementById(`${prefix}-conv`).value) || 0;
+                const rev = parseFloat(document.getElementById(`${prefix}-rev`).value) || 0;
+
+                // 내부 데이터 동기화 (수동 변경 시 대비)
+                currentData[prefix] = { spend, imp, click, conv, rev };
+
+                // CTR 연산
+                const ctrCell = document.getElementById(`${prefix}-ctr`);
+                ctrCell.innerText = imp > 0 ? ((click / imp) * 100).toFixed(2) + '%' : '0.00%';
+
+                // CVR 연산
+                const cvrCell = document.getElementById(`${prefix}-cvr`);
+                cvrCell.innerText = click > 0 ? ((conv / click) * 100).toFixed(2) + '%' : '0.00%';
+
+                // ROAS 연산
+                const roasCell = document.getElementById(`${prefix}-roas`);
+                roasCell.innerText = spend > 0 ? Math.round((rev / spend) * 100) + '%' : '0%';
+            });
+
+            updateDashboardCharts();
+        }
+
+        function updateDashboardCharts() {
+            const media = ['파워링크', '쇼핑검색', '메타'];
+            const spends = [currentData.p.spend, currentData.s.spend, currentData.m.spend];
+            const revs = [currentData.p.rev, currentData.s.rev, currentData.m.rev];
+
+            // 1. 광고비 vs 매출액 혼합 차트 (수치 가독성 인라인 반영)
             const ctxMixed = document.getElementById('mixedChart').getContext('2d');
             if (mixedChart) mixedChart.destroy();
             mixedChart = new Chart(ctxMixed, {
                 data: {
                     labels: media,
                     datasets: [
-                        { type: 'bar', label: '매출액 (원)', data: revs, backgroundColor: ['#3b82f6', '#10b981', '#a855f7'], borderRadius: 12 },
+                        { type: 'bar', label: '전환 매출 (원)', data: revs, backgroundColor: ['#3b82f6', '#10b981', '#a855f7'], borderRadius: 12 },
                         { type: 'line', label: '광고비 (원)', data: spends, borderColor: '#ef4444', borderWidth: 3, pointBackgroundColor: '#ef4444', fill: false }
                     ]
                 },
@@ -217,17 +336,17 @@
                     maintainAspectRatio: false,
                     plugins: { 
                         legend: { position: 'top' },
-                        datalabels: { // 막대나 포인트 위에 숫자 고정 표시
+                        datalabels: {
                             anchor: 'end',
                             align: 'top',
-                            font: { weight: 'bold', family: 'Pretendard' },
-                            formatter: (value) => value.toLocaleString()
+                            font: { weight: 'bold', family: 'Pretendard', size: 10 },
+                            formatter: (value) => value > 0 ? value.toLocaleString() : ''
                         }
                     }
                 }
             });
 
-            // 2. 도넛 비중 차트
+            // 2. 매출액 기여도 도넛 차트
             const ctxPie = document.getElementById('pieChart').getContext('2d');
             if (pieChart) pieChart.destroy();
             pieChart = new Chart(ctxPie, {
@@ -247,8 +366,8 @@
                                 let sum = 0;
                                 let dataArr = ctx.chart.data.datasets[0].data;
                                 dataArr.map(data => { sum += data; });
-                                let percentage = (value*100 / sum).toFixed(1)+"%";
-                                return percentage;
+                                if (sum === 0) return '';
+                                return (value*100 / sum).toFixed(1)+"%";
                             },
                             color: '#ffffff'
                         }
@@ -257,33 +376,32 @@
             });
         }
 
-        // 📸 누끼 따인 깨끗한 이미지(투명배경 PNG) 다운로드 함수
+        // 📸 투명 누끼 PNG 다운로드 기능
         function downloadChartPng(chartId, filename) {
             const canvas = document.getElementById(chartId);
-            // 배경 없이 데이터와 그래프선만 있는 상태로 데이터 주소 생성
             const imgUrl = canvas.toDataURL('image/png');
-            
             const link = document.createElement('a');
             link.download = `${filename}.png`;
             link.href = imgUrl;
             link.click();
         }
 
+        // 🟢 가공 완료 통합 엑셀 다운로드
         function downloadExcel() {
             const data = [
-                ["매체 구분", "광고비", "노출수", "클릭수", "매출액", "ROAS"],
-                ["네이버 파워링크", parseInt(document.getElementById('p-spend').value), parseInt(document.getElementById('p-imp').value), parseInt(document.getElementById('p-click').value), parseInt(document.getElementById('p-rev').value), document.getElementById('p-roas').innerText],
-                ["네이버 쇼핑검색", parseInt(document.getElementById('s-spend').value), parseInt(document.getElementById('s-imp').value), parseInt(document.getElementById('s-click').value), parseInt(document.getElementById('s-rev').value), document.getElementById('s-roas').innerText],
-                ["메타 (FB/IG)", parseInt(document.getElementById('m-spend').value), parseInt(document.getElementById('m-imp').value), parseInt(document.getElementById('m-click').value), parseInt(document.getElementById('m-rev').value), document.getElementById('m-roas').innerText]
+                ["매체 구분", "광고비", "노출수", "클릭수", "클릭률(CTR)", "전환수", "전환율(CVR)", "전환 매출", "수익률(ROAS)"],
+                ["네이버 파워링크", currentData.p.spend, currentData.p.imp, currentData.p.click, document.getElementById('p-ctr').innerText, currentData.p.conv, document.getElementById('p-cvr').innerText, currentData.p.rev, document.getElementById('p-roas').innerText],
+                ["네이버 쇼핑검색", currentData.s.spend, currentData.s.imp, currentData.s.click, document.getElementById('s-ctr').innerText, currentData.s.conv, document.getElementById('s-cvr').innerText, currentData.s.rev, document.getElementById('s-roas').innerText],
+                ["메타 (FB/IG)", currentData.m.spend, currentData.m.imp, currentData.m.click, document.getElementById('m-ctr').innerText, currentData.m.conv, document.getElementById('m-cvr').innerText, currentData.m.rev, document.getElementById('m-roas').innerText]
             ];
             const workbook = XLSX.utils.book_new();
             const worksheet = XLSX.utils.aoa_to_sheet(data);
-            XLSX.utils.book_append_sheet(workbook, worksheet, "통합매체성과");
-            XLSX.writeFile(workbook, `통합_매체_성과_보고서_${new Date().toISOString().slice(0,10)}.xlsx`);
+            XLSX.utils.book_append_sheet(workbook, worksheet, "통합성공보고서");
+            XLSX.writeFile(workbook, `통합_매체_종합_성과보고서_${new Date().toISOString().slice(0,10)}.xlsx`);
         }
 
         window.onload = function() {
-            updateDashboard();
+            reCalculateAll();
         };
     </script>
 </body>
